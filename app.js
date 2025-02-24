@@ -1,6 +1,6 @@
 document.getElementById('get-weather-btn').addEventListener('click', getWeather);
 
-const weatherApiKey = "9205065de373d40e6f2bc9e91514c983";
+const weatherApiKey = "My API goes here";
 
 // the function here helps to fetch and display weather data
 function getWeather() {
