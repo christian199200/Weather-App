@@ -1,0 +1,35 @@
+name: Deploy Weather App to Minikube
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@latest
+
+      - name: Check Minikube Status
+        run: minikube kubectl get pods -- -A
+
+      - name: Build Docker image inside Minikube
+        run: |
+          export SHELL=/bin/bash
+          eval $(minikube -p minikube docker-env)
+          minikube image build -t weather-app:latest .
+
+      - name: Deploy Weather App to Kubernetes
+        run: |
+          cd k8s
+          kubectl apply -f backend-deployment.yaml
+          kubectl apply -f backend-service.yaml
+          kubectl apply -f db-deployment.yaml
+          kubectl apply -f db-service.yaml
+          kubectl apply -f db-persistentvolumeclaim.yaml
+          minikube kubectl rollout status deployment db backend -- -n default --timeout=60s
+          kubectl get all
